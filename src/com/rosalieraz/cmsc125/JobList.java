@@ -43,7 +43,7 @@ public class JobList {
 
     boolean is_exhausted() {
         for(Job j: this.job_list) {
-            if(j.status != "done")
+            if(!j.status.equals("done"))
                 return false;
         }
         return true;
@@ -66,6 +66,13 @@ public class JobList {
     void display_jobs() {
         for(Job j: this.job_list) {
             System.out.println(j.id + ": " + j.size + " ");
+        }
+    }
+
+    void increment_WT() {
+        for (Job j: this.job_list) {
+            if(j.status.equals("assigned"))
+                j.waiting_time++;
         }
     }
 }
