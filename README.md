@@ -13,6 +13,8 @@ Machine Problem 3 in Computer Science 125: Operating Systems
 ## Data Structure/s and other concepts used
 
 - Array List
+- Comparator Interface
+- OOP
 
 
 ## Run Code Here: 
