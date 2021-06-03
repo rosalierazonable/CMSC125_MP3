@@ -7,11 +7,15 @@ package com.rosalieraz.cmsc125;
 import java.util.*;
 
 public class Memory {
-    ArrayList<Block> block_list = new ArrayList<>();
-    ArrayList<Block> processedB_list = new ArrayList<>();
-    int processed_jobs_count;
-    int process_inQueue_count;
     boolean is_full;
+    int processed_jobs_count; // number of jobs that have been assigned to a block
+    int process_inQueue_count; // number of jobs waiting for every iteration
+    int total_waiting_time;
+
+    ArrayList<Block> block_list = new ArrayList<>(); // list of memory blocks
+    ArrayList<Job> completed_jobs = new ArrayList<>(); // list of jobs that have been completed
+
+    Queue<Job> job_in_waiting = new LinkedList<>(); // jobs that are waiting
 
     Memory() {
         ArrayList<Block> block_list = new ArrayList<>();
@@ -30,6 +34,7 @@ public class Memory {
         this.block_list = block_list;
         this.processed_jobs_count = 0;
         this.process_inQueue_count = 0;
+        this.total_waiting_time = 0;
         this.is_full = false;
     }
 
@@ -43,31 +48,58 @@ public class Memory {
 
     void display_blocks() {
         for(Block b: this.block_list) {
-            System.out.println(b.id + ": " + b.size + " ");
+            System.out.println(b.id + ": " + b.size);
         }
     }
 
-    void is_full() {
+    void display_block_occupied() {
+        for(Block b: this.block_list) {
+            if(b.job_occupant != null)
+                System.out.println(b.id + ": " + b.size + " | " + b.job_occupant.id + ": " + b.job_occupant.size);
+            else
+                System.out.println(b.id + ": " + b.size + " | " + "No job occupant");
+        }
+    }
+
+    boolean is_full() {
         for (Block b: this.block_list) {
-            if (b.status.equals("free")) {
-                this.is_full = false;
-                return;
-            }
+            if (b.status.equals("free"))
+                return false;
+        }
+        return true;
+    }
+
+    boolean is_empty() {
+        for (Block b: this.block_list) {
+            if (!b.status.equals("free"))
+                return false;
+        }
+        return true;
+    }
+
+    void allocate_blocks(JobList jobList) {
+        for(Job j: jobList.job_list) {
+           if(j.status.equals("free")) {
+               if(!this.is_full()) {
+                   for (Block block : this.block_list) {
+                       if (block.status.equals("free")) {
+                           if(j.size <= block.size) {
+                               block.assign_to_job(j);
+
+                               j.is_assignable = false;
+                               j.status = "assigned";
+                               break;
+                           }
+                       }
+                   }
+                   if(j.is_assignable) {
+                       this.total_waiting_time++;
+                       this.job_in_waiting.add(j);
+                       this.process_inQueue_count++;
+                   }
+               }
+           }
         }
         this.is_full = true;
-    }
-
-    void allocate_blocks(ArrayList<Job> jobs) {
-        for(Job j: jobs) {
-            for (Block block : this.block_list) {
-                if (block.job_occupant == null && block.status.equals("free")) {
-                    if(j.size <= block.size) {
-                        block.assign_to_job(j);
-                        j.is_assignable = false;
-                        j.status = "in progress";
-                    }
-                }
-            }
-        }
     }
 }
