@@ -1,4 +1,4 @@
-package com;
+package com.rosalieraz.cmsc125;
 
 /*
  * BLOCK
